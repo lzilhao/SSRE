@@ -1,0 +1,7 @@
+At its most basic level, a Distributed Denial of Service (DDoS) attack overwhelms the target system with data, such that the response from the target system is either slowed or stopped altogether. In order to create the necessary amount of traffic, a network of zombie or bot computers is most often used.
+
+HTTP GET
+SYN flood
+ICMP floods
+Ping of death
+UDP fragment attacks
