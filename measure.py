@@ -15,10 +15,18 @@ import os
     f1.close()'''
 
 
+def measure_latency_cookie(index, destination):
+    global latencies
+    cookie = {'PHPSESSID': 'q48gg5v226r1r5gi3b7culjgc7'}
+    # cookie = {key: value.rstrip('\n') for key, value in cookie.items()}
+    print(cookie)
+    rq = requests.get("http://"+destination, cookies=cookie)
+    latencies[index] = rq.elapsed.total_seconds()
+    print(str(index) + " " + str(latencies[index]))
+
+
 def measure_latency(index, destination):
     global latencies
-    cookie = {'PHPSESSID':'q48gg5v226r1r5gi3b7culjgc7'}
-    # rq = requests.get("http://"+destination, cookies=cookie)
     rq = requests.get("http://"+destination)
     latencies[index] = rq.elapsed.total_seconds()
     print(str(index) + " " + str(latencies[index]))
@@ -30,8 +38,8 @@ def measure_throughput(duration, destination):
     while(True):
         elapsed_single = 0
         start = time.time()
-        #rq = requests.get("http://" + destination + "/5MB.zip")
-        cookie = {'PHPSESSID':'q48gg5v226r1r5gi3b7culjgc7'}
+        # rq = requests.get("http://" + destination + "/5MB.zip")
+        cookie = {'PHPSESSID': 'q48gg5v226r1r5gi3b7culjgc7'}
         # rq = requests.get("http://" + destination, cookies=cookie)
         rq = requests.get("http://" + destination)
         elapsed_single = time.time() - start
@@ -45,33 +53,68 @@ def measure_throughput(duration, destination):
         # os.system("rm 5MB.zip")
 
 
-if len(sys.argv) < 3:
-    print("Usage: measure.py <time in seconds> <ip>")
+if len(sys.argv) < 5:
+    print("Usage: measure.py <time in seconds> <ip> <cookie?> <number of splits>")
     sys.exit()
 
 destination = sys.argv[2]
 duration = 10*int(sys.argv[1])  # in tenths of seconds
 latencies = [None]*duration
-f1 = open('latency.txt', 'w')
-
+splits = int(sys.argv[4])
+'''
 t1 = threading.Thread(target=measure_throughput, args=(duration/10, destination))
 t1.daemon = True
-t1.start()
+t1.start()'''
 
 thread_list = []
-for i in range(duration):
-    t = threading.Thread(target=measure_latency, args=(i, destination))
-    t.daemon = True
-    t.start()
-    thread_list.append(t)
-    time.sleep(0.1)
+if int(sys.argv[3]) == 0:
+    for i in range(duration):
+        t = threading.Thread(target=measure_latency, args=(i, destination))
+        t.daemon = True
+        t.start()
+        thread_list.append(t)
+        time.sleep(0.1)
+elif int(sys.argv[3]) == 1:
+    for i in range(duration):
+        t = threading.Thread(target=measure_latency_cookie, args=(i, destination))
+        t.daemon = True
+        t.start()
+        thread_list.append(t)
+        time.sleep(0.1)
+else:
+    print("Cookie? value must be 0 or 1")
+    sys.exit()
 
 for i in range(0, len(thread_list)):
     thread_list[i].join()
 
-t1.join()
+# t1.join()
+'''f1 = open('latency.txt', 'a')
 
 for item in latencies:
-    f1.write(str(item) + '\n')
+    f1.write(str(item) + '\n')'''
 
-f1.close()
+i = 0
+j = 0
+split_length = len(latencies)/splits
+if os.path.isfile('latency' + str(i) + '.txt'):
+    f = open('latency' + str(j) + '.txt', 'a')
+else:
+    f = open('latency' + str(j) + '.txt', 'w')
+for item in latencies:
+    f.write(str(item) + '\n')
+    i += 1
+    if i >= split_length:
+        f.close()
+        j += 1
+        i = 0
+        if os.path.isfile('latency' + str(i) + '.txt'):
+            f = open('latency' + str(j) + '.txt', 'a')
+        else:
+            f = open('latency' + str(j) + '.txt', 'w')
+
+
+'''for i in range(0, splits):
+    f = open('latency' + str(i) + '.txt', 'a')
+    for j in range(0, len(latencies)/splits):
+'''

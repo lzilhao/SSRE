@@ -20,7 +20,7 @@ plt.xlabel("Time elapsed in s/10")
 plt.ylabel("Roundtrip time (s)")
 plt.plot(latency, 'ro')
 
-throughput = []
+'''throughput = []
 f1 = open("throughput.txt", 'r')
 for line in f1:
     throughput.append(line)
@@ -28,6 +28,6 @@ plt.figure(2)
 plt.title("Throughput")
 plt.xlabel("Time elapsed in s/10")
 plt.ylabel("Throughput MB/s")
-plt.plot(throughput)
+plt.plot(throughput)'''
 
 plt.show()

